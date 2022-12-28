@@ -1,35 +1,31 @@
 use std::{
     collections::hash_map::DefaultHasher,
     hash::{Hash, Hasher},
-    ops::DerefMut,
 };
 
 #[cfg(test)]
 mod tests;
 
 const DEFAULT_MAX_SIZE: u64 = 256;
-// hacky workaround the lack of String::copy()
-// for initializing the array
-const NONE: Option<KeyValue> = None;
 
-pub struct HashMap {
+pub struct HashMap<T> {
     curr_size: usize,
-    arr: [Option<KeyValue>; DEFAULT_MAX_SIZE as usize],
+    arr: [Option<KeyValue<T>>; DEFAULT_MAX_SIZE as usize],
 }
 
 #[derive(Clone, Debug)]
-pub struct KeyValue {
-    key: String,
+pub struct KeyValue<T> {
+    key: T,
     value: i32,
-    next: Option<Box<KeyValue>>,
+    next: Option<Box<KeyValue<T>>>,
 }
 
-// string, i32 for now
-impl HashMap {
-    pub fn new() -> Self {
+impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
+    const INIT: Option<KeyValue<T>> = None;
+    pub fn new() -> HashMap<T> {
         HashMap {
             curr_size: 0,
-            arr: [NONE; DEFAULT_MAX_SIZE as usize],
+            arr: [Self::INIT; DEFAULT_MAX_SIZE as usize],
         }
     }
 
@@ -38,7 +34,7 @@ impl HashMap {
     /// Returns None if the key didn't exist
     /// Returns the old value if the key wasn't present
     /// and updates it with the new value.
-    pub fn put(&mut self, key: String, val: i32) -> Option<i32> {
+    pub fn put(&mut self, key: T, val: i32) -> Option<i32> {
         let hash_val: u64 = hash_string(key.clone());
 
         let position = hash_val % DEFAULT_MAX_SIZE;
@@ -58,7 +54,7 @@ impl HashMap {
     ///
     /// Returns the value if it exists
     /// None otherwise
-    pub fn get(&self, key: String) -> Option<i32> {
+    pub fn get(&self, key: T) -> Option<i32> {
         let hash_val: u64 = hash_string(key.clone());
         let position = hash_val % DEFAULT_MAX_SIZE;
 
@@ -74,7 +70,7 @@ impl HashMap {
     /// if that key existed.
     ///
     /// Returns none if the value does not exist.
-    pub fn remove(&mut self, key: String) -> Option<i32> {
+    pub fn remove(&mut self, key: T) -> Option<i32> {
         let hash_val: u64 = hash_string(key.clone());
         let position: u64 = hash_val % DEFAULT_MAX_SIZE;
 
@@ -87,8 +83,9 @@ impl HashMap {
     }
 
     /// Clears the HashMap
-    pub fn clear(&self) {
-        !todo!()
+    pub fn clear(&mut self) {
+        // overwrite the array to yeet everything
+        self.arr = [Self::INIT; DEFAULT_MAX_SIZE as usize];
     }
 
     /// Returns the number of keys in
@@ -97,13 +94,13 @@ impl HashMap {
         !todo!()
     }
 
-    fn insert_new_value(&mut self, key: String, val: i32, position: usize) {
+    fn insert_new_value(&mut self, key: T, val: i32, position: usize) {
         let new_entry = KeyValue::new(key, val);
 
         self.arr[position] = Some(new_entry);
     }
 
-    fn update_or_link_new_val(&mut self, key: String, val: i32, position: usize) -> Option<i32> {
+    fn update_or_link_new_val(&mut self, key: T, val: i32, position: usize) -> Option<i32> {
         // traverse linked list until either find value (update)
         // or stick a new value on the end
 
@@ -138,7 +135,7 @@ impl HashMap {
         None
     }
 
-    fn check_list_for_key(&self, key: String, position: usize) -> Option<i32> {
+    fn check_list_for_key(&self, key: T, position: usize) -> Option<i32> {
         let mut current = self.arr[position].as_ref().unwrap();
         if current.key == key {
             return Some(current.value);
@@ -155,7 +152,7 @@ impl HashMap {
         None
     }
 
-    fn check_item_in_list_and_remove(&mut self, key: String, position: usize) -> Option<i32> {
+    fn check_item_in_list_and_remove(&mut self, key: T, position: usize) -> Option<i32> {
         let mut current = self.arr[position].as_ref().unwrap();
         if current.key == key {
             let return_val = current.value;
@@ -165,7 +162,7 @@ impl HashMap {
             if let Some(node) = current.next.to_owned() {
                 self.arr[position] = Some(*node);
             } else {
-                self.arr[position] = NONE
+                self.arr[position] = None
             }
 
             // return the value the node held
@@ -181,7 +178,7 @@ impl HashMap {
                 if let Some(node_next) = node.next.to_owned() {
                     self.arr[position] = Some(*node_next);
                 } else {
-                    self.arr[position] = NONE
+                    self.arr[position] = None
                 }
 
                 // return the value the node held
@@ -195,18 +192,17 @@ impl HashMap {
     }
 }
 
-impl KeyValue {
-    pub fn new(key: String, value: i32) -> Self {
-        let copied = key.clone();
+impl<T> KeyValue<T> {
+    pub fn new(key: T, value: i32) -> KeyValue<T> {
         KeyValue {
-            key: copied,
+            key,
             value,
             next: None,
         }
     }
 }
 
-fn hash_string(key: String) -> u64 {
+fn hash_string<T: Hash>(key: T) -> u64 {
     let mut hasher = DefaultHasher::new();
     key.hash(&mut hasher);
     let hash_val = hasher.finish();

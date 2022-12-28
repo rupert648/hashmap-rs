@@ -20,13 +20,13 @@ fn test_can_add_item() {
     let key = "hello".to_string();
     let value: i32 = 1;
 
-    let mut my_hash: HashMap = HashMap::new();
+    let mut my_hash: HashMap<String> = HashMap::new();
     my_hash.put(key, value);
 }
 
 #[rstest]
 fn test_can_add_multiple_items(multiple_keys: [String; 5]) {
-    let mut my_hash: HashMap = HashMap::new();
+    let mut my_hash: HashMap<String> = HashMap::new();
 
     for (i, key) in multiple_keys.iter().enumerate() {
         my_hash.put(key.clone(), i as i32);
@@ -38,7 +38,7 @@ fn test_can_get_item() {
     let key = "hello".to_string();
     let value: i32 = 1;
 
-    let mut my_hash: HashMap = HashMap::new();
+    let mut my_hash: HashMap<String> = HashMap::new();
     my_hash.put(key.clone(), value);
 
     let result = my_hash.get(key).unwrap();
@@ -51,7 +51,7 @@ fn test_can_update_item() {
     let key = "hello".to_string();
     let value: i32 = 1;
 
-    let mut my_hash: HashMap = HashMap::new();
+    let mut my_hash: HashMap<String> = HashMap::new();
     my_hash.put(key.clone(), value);
 
     let mut result = my_hash.get(key.clone()).unwrap();
@@ -65,7 +65,7 @@ fn test_can_update_item() {
 
 #[rstest]
 fn test_can_get_item_from_multiple(multiple_keys: [String; 5]) {
-    let mut my_hash: HashMap = HashMap::new();
+    let mut my_hash: HashMap<String> = HashMap::new();
 
     for (i, key) in multiple_keys.iter().enumerate() {
         my_hash.put(key.clone(), i as i32);
@@ -106,7 +106,7 @@ fn test_can_still_get_values_from_greater_than_max_size() {
 
     let keys: Vec<String> = unique.into_iter().collect();
 
-    let mut my_hash = HashMap::new();
+    let mut my_hash: HashMap<String> = HashMap::new();
     for (i, key) in keys.iter().enumerate() {
         my_hash.put(key.clone(), i as i32);
     }
@@ -121,7 +121,7 @@ fn test_can_remove_item() {
     let key = "hello".to_string();
     let value: i32 = 1;
 
-    let mut my_hash: HashMap = HashMap::new();
+    let mut my_hash: HashMap<String> = HashMap::new();
     my_hash.put(key.clone(), value);
 
     let mut result = my_hash.get(key.clone()).unwrap();
@@ -141,7 +141,7 @@ fn test_can_add_more_than_max_vals_and_remove_all_vals() {
 
     let keys: Vec<String> = unique.into_iter().collect();
 
-    let mut my_hash = HashMap::new();
+    let mut my_hash: HashMap<String> = HashMap::new();
     for (i, key) in keys.iter().enumerate() {
         my_hash.put(key.clone(), i as i32);
     }
