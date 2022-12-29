@@ -85,19 +85,21 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
     /// Clears the HashMap
     pub fn clear(&mut self) {
         // overwrite the array to yeet everything
+        self.curr_size -= 0;
         self.arr = [Self::INIT; DEFAULT_MAX_SIZE as usize];
     }
 
     /// Returns the number of keys in
     /// the HashMap
-    pub fn length(&self) {
-        !todo!()
+    pub fn length(&self) -> usize {
+        self.curr_size
     }
 
     fn insert_new_value(&mut self, key: T, val: i32, position: usize) {
         let new_entry = KeyValue::new(key, val);
 
         self.arr[position] = Some(new_entry);
+        self.curr_size += 1;
     }
 
     fn update_or_link_new_val(&mut self, key: T, val: i32, position: usize) -> Option<i32> {
@@ -131,6 +133,7 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
         let new_key_val = KeyValue::new(key, val);
 
         current.next = Some(Box::new(new_key_val));
+        self.curr_size += 1;
 
         None
     }
@@ -166,9 +169,11 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
             }
 
             // return the value the node held
+            self.curr_size -= 1;
             return Some(return_val);
         }
 
+        // iterate through until key found
         while let Some(node) = current.next.as_ref() {
             if node.key == key {
                 let return_val = node.value;
@@ -182,6 +187,7 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
                 }
 
                 // return the value the node held
+                self.curr_size -= 1;
                 return Some(return_val);
             }
 
