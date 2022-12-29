@@ -8,21 +8,22 @@ mod tests;
 
 const DEFAULT_MAX_SIZE: u64 = 256;
 
-pub struct HashMap<T> {
+pub struct HashMap<T, V> {
     curr_size: usize,
-    arr: [Option<KeyValue<T>>; DEFAULT_MAX_SIZE as usize],
+    arr: [Option<KeyValue<T, V>>; DEFAULT_MAX_SIZE as usize],
 }
 
 #[derive(Clone, Debug)]
-pub struct KeyValue<T> {
+pub struct KeyValue<T, V> {
     key: T,
-    value: i32,
-    next: Option<Box<KeyValue<T>>>,
+    value: V,
+    next: Option<Box<KeyValue<T, V>>>,
 }
 
-impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
-    const INIT: Option<KeyValue<T>> = None;
-    pub fn new() -> HashMap<T> {
+impl<T: std::cmp::PartialEq + std::hash::Hash + Clone, V: Clone + Copy> HashMap<T, V> {
+    // allows us to work around lack of `Copy` trait
+    const INIT: Option<KeyValue<T, V>> = None;
+    pub fn new() -> HashMap<T, V> {
         HashMap {
             curr_size: 0,
             arr: [Self::INIT; DEFAULT_MAX_SIZE as usize],
@@ -34,7 +35,7 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
     /// Returns None if the key didn't exist
     /// Returns the old value if the key wasn't present
     /// and updates it with the new value.
-    pub fn put(&mut self, key: T, val: i32) -> Option<i32> {
+    pub fn put(&mut self, key: T, val: V) -> Option<V> {
         let hash_val: u64 = hash_string(key.clone());
 
         let position = hash_val % DEFAULT_MAX_SIZE;
@@ -54,7 +55,7 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
     ///
     /// Returns the value if it exists
     /// None otherwise
-    pub fn get(&self, key: T) -> Option<i32> {
+    pub fn get(&self, key: T) -> Option<V> {
         let hash_val: u64 = hash_string(key.clone());
         let position = hash_val % DEFAULT_MAX_SIZE;
 
@@ -70,7 +71,7 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
     /// if that key existed.
     ///
     /// Returns none if the value does not exist.
-    pub fn remove(&mut self, key: T) -> Option<i32> {
+    pub fn remove(&mut self, key: T) -> Option<V> {
         let hash_val: u64 = hash_string(key.clone());
         let position: u64 = hash_val % DEFAULT_MAX_SIZE;
 
@@ -95,14 +96,14 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
         self.curr_size
     }
 
-    fn insert_new_value(&mut self, key: T, val: i32, position: usize) {
+    fn insert_new_value(&mut self, key: T, val: V, position: usize) {
         let new_entry = KeyValue::new(key, val);
 
         self.arr[position] = Some(new_entry);
         self.curr_size += 1;
     }
 
-    fn update_or_link_new_val(&mut self, key: T, val: i32, position: usize) -> Option<i32> {
+    fn update_or_link_new_val(&mut self, key: T, val: V, position: usize) -> Option<V> {
         // traverse linked list until either find value (update)
         // or stick a new value on the end
 
@@ -138,7 +139,7 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
         None
     }
 
-    fn check_list_for_key(&self, key: T, position: usize) -> Option<i32> {
+    fn check_list_for_key(&self, key: T, position: usize) -> Option<V> {
         let mut current = self.arr[position].as_ref().unwrap();
         if current.key == key {
             return Some(current.value);
@@ -155,7 +156,7 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
         None
     }
 
-    fn check_item_in_list_and_remove(&mut self, key: T, position: usize) -> Option<i32> {
+    fn check_item_in_list_and_remove(&mut self, key: T, position: usize) -> Option<V> {
         let mut current = self.arr[position].as_ref().unwrap();
         if current.key == key {
             let return_val = current.value;
@@ -198,8 +199,8 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone> HashMap<T> {
     }
 }
 
-impl<T> KeyValue<T> {
-    pub fn new(key: T, value: i32) -> KeyValue<T> {
+impl<T, V> KeyValue<T, V> {
+    pub fn new(key: T, value: V) -> KeyValue<T, V> {
         KeyValue {
             key,
             value,
