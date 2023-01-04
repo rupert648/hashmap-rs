@@ -36,7 +36,7 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone, V: Clone + Copy> HashMap<
     /// Returns the old value if the key wasn't present
     /// and updates it with the new value.
     pub fn put(&mut self, key: T, val: V) -> Option<V> {
-        let hash_val: u64 = hash_string(key.clone());
+        let hash_val: u64 = hash_key(key.clone());
 
         let position = hash_val % DEFAULT_MAX_SIZE;
 
@@ -56,7 +56,7 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone, V: Clone + Copy> HashMap<
     /// Returns the value if it exists
     /// None otherwise
     pub fn get(&self, key: T) -> Option<V> {
-        let hash_val: u64 = hash_string(key.clone());
+        let hash_val: u64 = hash_key(key.clone());
         let position = hash_val % DEFAULT_MAX_SIZE;
 
         let result = match &self.arr[position as usize] {
@@ -72,7 +72,7 @@ impl<T: std::cmp::PartialEq + std::hash::Hash + Clone, V: Clone + Copy> HashMap<
     ///
     /// Returns none if the value does not exist.
     pub fn remove(&mut self, key: T) -> Option<V> {
-        let hash_val: u64 = hash_string(key.clone());
+        let hash_val: u64 = hash_key(key.clone());
         let position: u64 = hash_val % DEFAULT_MAX_SIZE;
 
         let result = match &self.arr[position as usize] {
@@ -209,7 +209,7 @@ impl<T, V> KeyValue<T, V> {
     }
 }
 
-fn hash_string<T: Hash>(key: T) -> u64 {
+fn hash_key<T: Hash>(key: T) -> u64 {
     let mut hasher = DefaultHasher::new();
     key.hash(&mut hasher);
     let hash_val = hasher.finish();
