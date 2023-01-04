@@ -80,7 +80,7 @@ impl<T: std::cmp::PartialEq + Hash + Clone, V: Clone + Copy> HashMap<T, V> {
     /// Clears the HashMap
     pub fn clear(&mut self) {
         // overwrite the array to yeet everything
-        self.curr_size -= 0;
+        self.curr_size = 0;
         self.arr = [Self::INIT; DEFAULT_MAX_SIZE as usize];
     }
 
@@ -151,7 +151,7 @@ impl<T: std::cmp::PartialEq + Hash + Clone, V: Clone + Copy> HashMap<T, V> {
     }
 
     fn check_item_in_list_and_remove(&mut self, key: T, position: usize) -> Option<V> {
-        let mut current = self.arr[position].as_ref().unwrap();
+        let mut current = self.arr[position].as_mut().unwrap();
         if current.key == key {
             let return_val = current.value;
 
@@ -169,16 +169,17 @@ impl<T: std::cmp::PartialEq + Hash + Clone, V: Clone + Copy> HashMap<T, V> {
         }
 
         // iterate through until key found
-        while let Some(node) = current.next.as_ref() {
-            if node.key == key {
-                let return_val = node.value;
+        while current.next.is_some() {
+            let next = current.next.as_mut().unwrap();
+            if next.key == key {
+                let return_val = next.value;
 
                 // check if there is a next val
                 // if there is next, update array to point to this val
-                if let Some(node_next) = node.next.to_owned() {
-                    self.arr[position] = Some(*node_next);
+                if let Some(next_next) = next.next.to_owned() {
+                    current.next = Some(Box::new(*next_next));
                 } else {
-                    self.arr[position] = None
+                    current.next = None
                 }
 
                 // return the value the node held
@@ -186,7 +187,8 @@ impl<T: std::cmp::PartialEq + Hash + Clone, V: Clone + Copy> HashMap<T, V> {
                 return Some(return_val);
             }
 
-            current = node;
+            // set current equal to the next
+            current = current.next.as_mut().unwrap();
         }
 
         None
