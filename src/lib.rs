@@ -40,8 +40,6 @@ impl<T: std::cmp::PartialEq + Hash + Clone, V: Clone + Copy> HashMap<T, V> {
 
         let position = hash_val % DEFAULT_MAX_SIZE;
 
-        
-
         match &self.arr[position as usize] {
             Some(_) => self.update_or_link_new_val(key, val, position as usize),
             None => {
@@ -59,8 +57,6 @@ impl<T: std::cmp::PartialEq + Hash + Clone, V: Clone + Copy> HashMap<T, V> {
         let hash_val: u64 = hash_key(key.clone());
         let position = hash_val % DEFAULT_MAX_SIZE;
 
-        
-
         match &self.arr[position as usize] {
             Some(_) => self.check_list_for_key(key, position as usize),
             None => None,
@@ -74,8 +70,6 @@ impl<T: std::cmp::PartialEq + Hash + Clone, V: Clone + Copy> HashMap<T, V> {
     pub fn remove(&mut self, key: T) -> Option<V> {
         let hash_val: u64 = hash_key(key.clone());
         let position: u64 = hash_val % DEFAULT_MAX_SIZE;
-
-        
 
         match &self.arr[position as usize] {
             Some(_) => self.check_item_in_list_and_remove(key, position as usize),
@@ -212,6 +206,6 @@ impl<T, V> KeyValue<T, V> {
 fn hash_key<T: Hash>(key: T) -> u64 {
     let mut hasher = DefaultHasher::new();
     key.hash(&mut hasher);
-    
+
     hasher.finish()
 }
