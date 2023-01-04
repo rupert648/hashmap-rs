@@ -20,7 +20,7 @@ pub struct KeyValue<T, V> {
     next: Option<Box<KeyValue<T, V>>>,
 }
 
-impl<T: std::cmp::PartialEq + std::hash::Hash + Clone, V: Clone + Copy> HashMap<T, V> {
+impl<T: std::cmp::PartialEq + Hash + Clone, V: Clone + Copy> HashMap<T, V> {
     // allows us to work around lack of `Copy` trait
     const INIT: Option<KeyValue<T, V>> = None;
     pub fn new() -> HashMap<T, V> {
