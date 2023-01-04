@@ -40,15 +40,15 @@ impl<T: std::cmp::PartialEq + Hash + Clone, V: Clone + Copy> HashMap<T, V> {
 
         let position = hash_val % DEFAULT_MAX_SIZE;
 
-        let result = match &self.arr[position as usize] {
+        
+
+        match &self.arr[position as usize] {
             Some(_) => self.update_or_link_new_val(key, val, position as usize),
             None => {
                 self.insert_new_value(key, val, position as usize);
-                return None;
+                None
             }
-        };
-
-        result
+        }
     }
 
     /// Gets a the given value for a key.
@@ -59,12 +59,12 @@ impl<T: std::cmp::PartialEq + Hash + Clone, V: Clone + Copy> HashMap<T, V> {
         let hash_val: u64 = hash_key(key.clone());
         let position = hash_val % DEFAULT_MAX_SIZE;
 
-        let result = match &self.arr[position as usize] {
+        
+
+        match &self.arr[position as usize] {
             Some(_) => self.check_list_for_key(key, position as usize),
             None => None,
-        };
-
-        result
+        }
     }
 
     /// Removes a value from the map, returning the value
@@ -75,12 +75,12 @@ impl<T: std::cmp::PartialEq + Hash + Clone, V: Clone + Copy> HashMap<T, V> {
         let hash_val: u64 = hash_key(key.clone());
         let position: u64 = hash_val % DEFAULT_MAX_SIZE;
 
-        let result = match &self.arr[position as usize] {
+        
+
+        match &self.arr[position as usize] {
             Some(_) => self.check_item_in_list_and_remove(key, position as usize),
             None => None,
-        };
-
-        result
+        }
     }
 
     /// Clears the HashMap
@@ -117,7 +117,7 @@ impl<T: std::cmp::PartialEq + Hash + Clone, V: Clone + Copy> HashMap<T, V> {
         }
 
         let mut current = key_val;
-        while !current.next.is_none() {
+        while current.next.is_some() {
             let node = current.next.as_mut().unwrap();
 
             if node.key == key {
@@ -212,6 +212,6 @@ impl<T, V> KeyValue<T, V> {
 fn hash_key<T: Hash>(key: T) -> u64 {
     let mut hasher = DefaultHasher::new();
     key.hash(&mut hasher);
-    let hash_val = hasher.finish();
-    hash_val
+    
+    hasher.finish()
 }
