@@ -12,4 +12,4 @@ To use the HashMap, clone this repository and import the `HashMap` module into y
 
 ## Blog Post
 
-For a more in-depth explanation of the implementation of this HashMap, check out my [blog post]().
+For a more in-depth explanation of the implementation of this HashMap, check out my [blog post](https://medium.com/@rupertcarr/implementing-a-hashmap-in-rust-35d055b5ac2b).
